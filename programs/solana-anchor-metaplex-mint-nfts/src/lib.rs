@@ -10,7 +10,7 @@ use {
         token,
     },
     mpl_token_metadata::{
-        ID as TOKEN_METADATA_ID,
+        ID as TOKEN_METADATA_PROGRAM_ID,
         instruction as token_metadata_instruction,
     },
 };
@@ -134,7 +134,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
             // a lot of the following data on-chain. HOWEVER, the metadata_uri
             // (in this example) will point to off-chain metadata.
             &token_metadata_instruction::create_metadata_accounts_v3(
-                TOKEN_METADATA_ID, // Token Metadata Program we're invoking
+                TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
                 ctx.accounts.metadata.key(), // metadata_account
                 ctx.accounts.mint.key(), // mint_account
                 ctx.accounts.mint_authority.key(), // Mint authority
@@ -162,7 +162,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
         )?;
 
         msg!("6. Creating master edition metadata account...");
-        msg!("Metadata Edition Metadata Account Address: {}", &ctx.accounts.master_edition_metadata.to_account_info().key());
+        msg!("Master Edition Metadata Account Address: {}", &ctx.accounts.master_edition_metadata.to_account_info().key());
         // NOTE Use solana_program invoke() CPI to create the transaction
         // Specifically, we use Metaplex's instruction function to create the
         // instruction we need and pass in the needed accounts
@@ -171,7 +171,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
             // NOTE This master_edition_metadata account allows you to get
             // into details such as royalties, limited editions, etc.
             &token_metadata_instruction::create_master_edition_v3(
-                TOKEN_METADATA_ID, // Token Metadata Program we're invoking
+                TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
                 ctx.accounts.master_edition_metadata.key(), // (master) edition account
                 ctx.accounts.mint.key(), // mint account
                 ctx.accounts.mint_authority.key(), // Update authority
@@ -229,7 +229,20 @@ pub struct MintNft<'info> {
     pub associated_token_program: Program<'info, associated_token::AssociatedToken>,
 
     // NOTE This is Metaplex's on-program. We're going to use it via CPI to create some metadata
+    // FIXME I'm running into: Error processing Instruction 0: instruction expected an
+    // executable account when trying to anchor test on localnet. It MAY be a
+    // problem since I'm trying to run Metaplex's on-chain program, but I may not
+    // have that account data on localnet. READ for details:
+    // https://discord.com/channels/889577356681945098/889702325231427584/946505326830690354
+    // NOTE I believe you may need to CLONE the account from mainnet in order
+    // to use locally. To do this, you can use an Anchor.toml feature:
+    // https://discord.com/channels/889577356681945098/889702325231427584/943483106852212766
+    // #[account(address = spl_token_metadata::id())]
+    // pub token_metadata_program: AccountInfo<'info>,
+
     /// CHECK: Metaplex will check this
     pub token_metadata_program: UncheckedAccount<'info>,
+    // #[account(address = TOKEN_METADATA_PROGRAM_ID)]
+    // pub token_metadata_program: UncheckedAccount<'info>
 
 }

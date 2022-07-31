@@ -37,17 +37,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
     // and we're going to use it to create the address (of metadata account) that points to the mint
     // We're ONLY finding the ADDRESS! Our program will do the actual creating of the metadata account!
     // Q: Do I need to wrap the await inside parens? (await anchor...)
-    // const metadataAccountAddress = (
-    //   await anchor.web3.PublicKey.findProgramAddress(
-    //     [
-    //       Buffer.from("metadata"),
-    //       TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-    //       mintKeypair.publicKey.toBuffer(),
-    //     ],
-    //     TOKEN_METADATA_PROGRAM_ID // Program that will own the PDA
-    //   )
-    // )[0]; // Just want the address
-    let [metadataAccountAddress, metadataAccountBump] =
+    const metadataAccountAddress = (
       await anchor.web3.PublicKey.findProgramAddress(
         [
           Buffer.from("metadata"),
@@ -55,37 +45,62 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
           mintKeypair.publicKey.toBuffer(),
         ],
         TOKEN_METADATA_PROGRAM_ID // Program that will own the PDA
-      );
+      )
+    )[0]; // Just want the address
     console.log(
       `Metadata Account Address (PDA) initialized: ${metadataAccountAddress}`
     );
-
-    // let masterEditionMetadataAccountAddress = (
+    // let [metadataAccountAddress, metadataAccountBump] =
     //   await anchor.web3.PublicKey.findProgramAddress(
     //     [
     //       Buffer.from("metadata"),
     //       TOKEN_METADATA_PROGRAM_ID.toBuffer(),
     //       mintKeypair.publicKey.toBuffer(),
-    //       Buffer.from("master-edition"),
     //     ],
-    //     TOKEN_METADATA_PROGRAM_ID
-    //   )
-    // )[0]; // Just want the address
-    let [
-      masterEditionMetadataAccountAddress,
-      masterEditionMetadataAccountBump,
-    ] = await anchor.web3.PublicKey.findProgramAddress(
-      [
-        Buffer.from("metadata"),
-        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
-        mintKeypair.publicKey.toBuffer(),
-        Buffer.from("master-edition"),
-      ],
-      TOKEN_METADATA_PROGRAM_ID // Program that will own the PDA
-    ); // Just want the address
+    //     TOKEN_METADATA_PROGRAM_ID // Program that will own the PDA
+    //   );
+    // console.log(
+    //   `Metadata Account Address (PDA) initialized: ${metadataAccountAddress}`
+    // );
+
+    let masterEditionMetadataAccountAddress = (
+      await anchor.web3.PublicKey.findProgramAddress(
+        [
+          Buffer.from("metadata"),
+          TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+          mintKeypair.publicKey.toBuffer(),
+          Buffer.from("edition"),
+        ],
+        TOKEN_METADATA_PROGRAM_ID
+      )
+    )[0]; // Just want the address
     console.log(
       `Master Edition Metadata Account Address (PDA) initialized: ${masterEditionMetadataAccountAddress}`
     );
+    // Handy account info search. This errors because there is no
+    // local version of MP Token Program in the local test validator
+    // let metaplexTokenProgramAccountInfo =
+    //   await provider.connection.getAccountInfo(TOKEN_METADATA_PROGRAM_ID);
+    // console.log(
+    //   `${TOKEN_METADATA_PROGRAM_ID.toString()} length: ${
+    //     metaplexTokenProgramAccountInfo.data.length
+    //   }`
+    // );
+    // let [
+    //   masterEditionMetadataAccountAddress,
+    //   masterEditionMetadataAccountBump,
+    // ] = await anchor.web3.PublicKey.findProgramAddress(
+    //   [
+    //     Buffer.from("metadata"),
+    //     TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+    //     mintKeypair.publicKey.toBuffer(),
+    //     Buffer.from("master-edition"),
+    //   ],
+    //   TOKEN_METADATA_PROGRAM_ID // Program that will own the PDA
+    // ); // Just want the address
+    // console.log(
+    //   `Master Edition Metadata Account Address (PDA) initialized: ${masterEditionMetadataAccountAddress}`
+    // );
 
     // 2. Transact with the mint_nft() fn in our on-chain program
     // NOTE This sends and confirms the transaction in one go!
@@ -114,6 +129,6 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
       // NOTE I was right that the mintKeypair and wallet are signers,
       // but you don't pass wallet as signer for Anchor. It already knows.
       .signers([mintKeypair])
-      .rpc();
+      .rpc({ skipPreflight: true }); // Get better logs
   });
 });
