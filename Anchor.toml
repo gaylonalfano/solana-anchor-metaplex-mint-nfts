@@ -1,14 +1,16 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
+# [programs.localnet]
+[programs.devnet]
 solana_anchor_metaplex_mint_nfts = "CgiJkL1bjbHggS4mwQMx4cJR7JYQxcRjADvAjhpmzKFe"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+# cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/gaylonalfano/.config/solana/id.json"
 
 [scripts]
