@@ -1,6 +1,6 @@
 {
-  "name": "YouTube NFT",
-  "symbol": "TUBE",
+  "name": "NftNameJSON",
+  "symbol": "NftSymbolJSON",
   "description": "A test for our NFT example.",
   "seller_fee_basis_points": 5,
   "external_url": "",
