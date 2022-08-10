@@ -29,7 +29,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
         // A: NO! I believe this is the CPI to SystemProgram, which creates
         // a fresh account and makes the Token Program its owner.
         msg!("1. Creating account for the actual mint (token)...");
-        msg!("Mint: {}", &ctx.accounts.mint.key());
+        // msg!("Mint: {}", &ctx.accounts.mint.key());
         system_program::create_account(
             // NOTE The CpiContext stores the program and Accounts
             CpiContext::new(
@@ -61,7 +61,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
         // A: NO! This is spl-token create-token --decimals 0
         // NOTE --decimals 0 is the protocol for NFTs
         msg!("2. Initializing mint account as a mint...");
-        msg!("Mint: {}", &ctx.accounts.mint.key());
+        // msg!("Mint: {}", &ctx.accounts.mint.key());
         token::initialize_mint(
             CpiContext::new(
                 // Q: Do I use to_account_info() or key()?
@@ -93,7 +93,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
         // Q: Is this the Token Metadata Program creating the Metadata Account for the token?
         // A: Don't believe so because this comes later with steps 5 and 6 w/ Metaplex
         msg!("3. Creating associated token account for the mint and the wallet...");
-        msg!("Token Address: {}", &ctx.accounts.token_account.to_account_info().key());
+        // msg!("Token Address: {}", &ctx.accounts.token_account.to_account_info().key());
         associated_token::create(
             CpiContext::new(
                 ctx.accounts.associated_token_program.to_account_info(),
@@ -118,8 +118,8 @@ pub mod solana_anchor_metaplex_mint_nfts {
         // A: Yes! This mints (increases supply of Token) and transfers new tokens
         // to owner's token account (default recipient token address) balance
         msg!("4. Minting token to the token account (i.e. give it 1 for NFT)...");
-        msg!("Mint: {}", &ctx.accounts.mint.key());
-        msg!("Token Address: {}", &ctx.accounts.token_account.to_account_info().key());
+        // msg!("Mint: {}", &ctx.accounts.mint.key());
+        // msg!("Token Address: {}", &ctx.accounts.token_account.to_account_info().key());
         token::mint_to(
             CpiContext::new(
                 ctx.accounts.token_program.to_account_info(), // Program to ping
@@ -137,7 +137,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
         )?;
 
         msg!("5. Creating metadata account...");
-        msg!("Metadata Account Address: {}", &ctx.accounts.metadata.to_account_info().key());
+        // msg!("Metadata Account Address: {}", &ctx.accounts.metadata.to_account_info().key());
         // NOTE Need to use metadata.to_account_info().key() since it's an UncheckedAccount
         // NOTE Use solana_program invoke() CPI to create the transaction
         // Specifically, we use Metaplex's instruction function to create the
@@ -150,24 +150,8 @@ pub mod solana_anchor_metaplex_mint_nfts {
             // FIXME create_metadata_accounts_v3() Errors (may need spl-token-2022?? *Read the
             // solana logs!) due to Program computational budget exceeded!
             // UPDATE Using the version2 method WORKS!
-            &token_metadata_instruction::create_metadata_accounts_v2(
-                TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
-                ctx.accounts.metadata.key(), // metadata_account
-                ctx.accounts.mint.key(), // mint_account
-                ctx.accounts.mint_authority.key(), // Mint authority
-                ctx.accounts.mint_authority.key(), // Payer
-                ctx.accounts.mint_authority.key(), // Update authority
-                metadata_name, // Passed in fn as ix data argument
-                metadata_symbol, // Passed in fn as ix data argument 
-                metadata_uri, // Passed in fn as ix data argument. Off-chain Metadata (in this example)
-                None, // Option<Vec<Creator, Global>>
-                1, // seller_fee_basis_points, 
-                true, // update_authority_is_signer, 
-                false, // is_mutable, 
-                None, // Option<Uses>
-                None, // Option<Collection>
-            ),
-            // &token_metadata_instruction::create_metadata_accounts_v3(
+            // UPDATE2: Well, now it's failing again...Read: https://stackoverflow.com/questions/71887004/solana-computational-budget-exceeded
+            // &token_metadata_instruction::create_metadata_accounts_v2(
             //     TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
             //     ctx.accounts.metadata.key(), // metadata_account
             //     ctx.accounts.mint.key(), // mint_account
@@ -181,11 +165,28 @@ pub mod solana_anchor_metaplex_mint_nfts {
             //     1, // seller_fee_basis_points, 
             //     true, // update_authority_is_signer, 
             //     false, // is_mutable, 
-            //     None, // Option<Collection>
             //     None, // Option<Uses>
-            //     None, // Option<CollectionDetails>
+            //     None, // Option<Collection>
             // ),
-            // // Account Info
+            &token_metadata_instruction::create_metadata_accounts_v3(
+                TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
+                ctx.accounts.metadata.key(), // metadata_account
+                ctx.accounts.mint.key(), // mint_account
+                ctx.accounts.mint_authority.key(), // Mint authority
+                ctx.accounts.mint_authority.key(), // Payer
+                ctx.accounts.mint_authority.key(), // Update authority
+                metadata_name, // Passed in fn as ix data argument
+                metadata_symbol, // Passed in fn as ix data argument 
+                metadata_uri, // Passed in fn as ix data argument. Off-chain Metadata (in this example)
+                None, // Option<Vec<Creator, Global>>
+                1, // seller_fee_basis_points, 
+                true, // update_authority_is_signer, 
+                false, // is_mutable, 
+                None, // Option<Collection>
+                None, // Option<Uses>
+                None, // Option<CollectionDetails>
+            ),
+            // Account Info
             &[
                 ctx.accounts.metadata.to_account_info(),
                 ctx.accounts.mint.to_account_info(),
@@ -196,7 +197,7 @@ pub mod solana_anchor_metaplex_mint_nfts {
         )?;
 
         msg!("6. Creating master edition metadata account...");
-        msg!("Master Edition Metadata Account Address: {}", &ctx.accounts.master_edition_metadata.to_account_info().key());
+        // msg!("Master Edition Metadata Account Address: {}", &ctx.accounts.master_edition_metadata.to_account_info().key());
         // NOTE Use solana_program invoke() CPI to create the transaction
         // Specifically, we use Metaplex's instruction function to create the
         // instruction we need and pass in the needed accounts

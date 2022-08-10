@@ -37,6 +37,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
     // and we're going to use it to create the address (of metadata account) that points to the mint
     // We're ONLY finding the ADDRESS! Our program will do the actual creating of the metadata account!
     // Q: Do I need to wrap the await inside parens? (await anchor...)
+    // A: Don't believe so. Just an alternate syntax
     const metadataAccountAddress = (
       await anchor.web3.PublicKey.findProgramAddress(
         [
@@ -107,6 +108,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
     // FIXME: Encountered two errors when running anchor test:
     // -- One about metadata not being added correctly or at all
     // -- Two was the familiar ix error: instruction modified the
+    // UPDATE: Turns out was running older version of Solana program CLI!
     // program ID of an account. In the past, this was space/size related...
     // NOTE You DO NOT pass the Context as an arg! Anchor does this automatically!
     await program.methods
@@ -129,6 +131,10 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
         // Q: What about the others (tokenProgram, associatedTokenProgram, rent, etc.)?
         // A: It's because Anchor automatically resolves these.
         // A: We add tokenMetadataProgram because it's UNCHECKED!
+        // Q: AFTER a successful mint, How does the Token/Mint's Mint Authority transfer
+        // to the Master Edition Metadata Account? We specify mintAuthority: wallet.publicKey,
+        // but in Solana Explorer, the Token's 'Mint Authority'= Master Edition Metadata Account
+        // and 'Update Authority' = Wallet
       })
       // NOTE I was right that the mintKeypair and wallet are signers,
       // but you don't pass wallet as signer for Anchor. It already knows.
