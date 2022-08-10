@@ -15,10 +15,10 @@ use {
     },
 };
 
-declare_id!("95ytN8KwCTq1aQuXcWcZzYdss79WbbLrfGK7mqh7F7zd");
+declare_id!("D1bjHUXjN8KQfuUC1TtC3CCXCdhS4XYceCYjndF77U2G");
 
 #[program]
-pub mod solana_anchor_metaplex_mint_nfts {
+pub mod solana_anchor_metaplex_mint_sell_nfts {
     use super::*;
 
     pub fn mint_nft(ctx: Context<MintNft>, metadata_name: String, metadata_symbol: String, metadata_uri: String) -> Result<()> {

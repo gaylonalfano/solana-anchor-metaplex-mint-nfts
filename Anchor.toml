@@ -4,7 +4,7 @@ skip-lint = false
 # [programs.localnet]
 [programs.devnet]
 # solana_anchor_metaplex_mint_nfts = "CgiJkL1bjbHggS4mwQMx4cJR7JYQxcRjADvAjhpmzKFe"
-solana_anchor_metaplex_mint_sell_nfts = "95ytN8KwCTq1aQuXcWcZzYdss79WbbLrfGK7mqh7F7zd"
+solana_anchor_metaplex_mint_sell_nfts = "D1bjHUXjN8KQfuUC1TtC3CCXCdhS4XYceCYjndF77U2G"
 
 [registry]
 # url = "https://api.apr.dev"
