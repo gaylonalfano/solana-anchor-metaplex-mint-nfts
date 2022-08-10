@@ -15,7 +15,7 @@ use {
     },
 };
 
-declare_id!("CgiJkL1bjbHggS4mwQMx4cJR7JYQxcRjADvAjhpmzKFe");
+declare_id!("95ytN8KwCTq1aQuXcWcZzYdss79WbbLrfGK7mqh7F7zd");
 
 #[program]
 pub mod solana_anchor_metaplex_mint_nfts {

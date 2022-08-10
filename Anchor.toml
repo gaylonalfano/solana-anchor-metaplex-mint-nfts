@@ -3,10 +3,12 @@ seeds = false
 skip-lint = false
 # [programs.localnet]
 [programs.devnet]
-solana_anchor_metaplex_mint_nfts = "CgiJkL1bjbHggS4mwQMx4cJR7JYQxcRjADvAjhpmzKFe"
+# solana_anchor_metaplex_mint_nfts = "CgiJkL1bjbHggS4mwQMx4cJR7JYQxcRjADvAjhpmzKFe"
+solana_anchor_metaplex_mint_sell_nfts = "95ytN8KwCTq1aQuXcWcZzYdss79WbbLrfGK7mqh7F7zd"
 
 [registry]
-url = "https://api.apr.dev"
+# url = "https://api.apr.dev"
+url = "https://anchor.projectserum.com"
 
 [provider]
 # cluster = "localnet"

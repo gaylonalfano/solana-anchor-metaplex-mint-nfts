@@ -1219,7 +1219,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fd0db749597d91ff862fd1d55ea87f7855a744a8425a64695b6fca237d1dad1"
 
 [[package]]
-name = "solana-anchor-metaplex-mint-nfts"
+name = "solana-anchor-metaplex-mint-sell-nfts"
 version = "0.1.0"
 dependencies = [
  "anchor-lang",

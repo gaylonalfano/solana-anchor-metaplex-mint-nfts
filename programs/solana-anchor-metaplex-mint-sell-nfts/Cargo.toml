@@ -1,12 +1,12 @@
 [package]
-name = "solana-anchor-metaplex-mint-nfts"
+name = "solana-anchor-metaplex-mint-sell-nfts"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "solana_anchor_metaplex_mint_nfts"
+name = "solana_anchor_metaplex_mint_sell_nfts"
 
 [features]
 no-entrypoint = []
