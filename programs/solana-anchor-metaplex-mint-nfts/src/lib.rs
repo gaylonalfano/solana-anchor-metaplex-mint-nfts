@@ -147,7 +147,10 @@ pub mod solana_anchor_metaplex_mint_nfts {
             // NOTE Metaplex creates this account and this account stores
             // a lot of the following data on-chain. HOWEVER, the metadata_uri
             // (in this example) will point to off-chain metadata.
-            &token_metadata_instruction::create_metadata_accounts_v3(
+            // FIXME create_metadata_accounts_v3() Errors (may need spl-token-2022?? *Read the
+            // solana logs!) due to Program computational budget exceeded!
+            // UPDATE Using the version2 method WORKS!
+            &token_metadata_instruction::create_metadata_accounts_v2(
                 TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
                 ctx.accounts.metadata.key(), // metadata_account
                 ctx.accounts.mint.key(), // mint_account
@@ -161,11 +164,28 @@ pub mod solana_anchor_metaplex_mint_nfts {
                 1, // seller_fee_basis_points, 
                 true, // update_authority_is_signer, 
                 false, // is_mutable, 
-                None, // Option<Collection>
                 None, // Option<Uses>
-                None, // Option<CollectionDetails>
+                None, // Option<Collection>
             ),
-            // Account Info
+            // &token_metadata_instruction::create_metadata_accounts_v3(
+            //     TOKEN_METADATA_PROGRAM_ID, // Token Metadata Program we're invoking
+            //     ctx.accounts.metadata.key(), // metadata_account
+            //     ctx.accounts.mint.key(), // mint_account
+            //     ctx.accounts.mint_authority.key(), // Mint authority
+            //     ctx.accounts.mint_authority.key(), // Payer
+            //     ctx.accounts.mint_authority.key(), // Update authority
+            //     metadata_name, // Passed in fn as ix data argument
+            //     metadata_symbol, // Passed in fn as ix data argument 
+            //     metadata_uri, // Passed in fn as ix data argument. Off-chain Metadata (in this example)
+            //     None, // Option<Vec<Creator, Global>>
+            //     1, // seller_fee_basis_points, 
+            //     true, // update_authority_is_signer, 
+            //     false, // is_mutable, 
+            //     None, // Option<Collection>
+            //     None, // Option<Uses>
+            //     None, // Option<CollectionDetails>
+            // ),
+            // // Account Info
             &[
                 ctx.accounts.metadata.to_account_info(),
                 ctx.accounts.mint.to_account_info(),
@@ -220,13 +240,13 @@ pub struct MintNft<'info> {
     // let token_program = next_account_info(accounts_iter)?;
     // let associated_token_program = next_account_info(accounts_iter)?;
 
+    /// CHECK: We're about to create this with Metaplex inside transaction
+    #[account(mut)]
+    pub master_edition_metadata: UncheckedAccount<'info>,
     /// CHECK: We're about to create this with Metaplex inside transaction,
     /// so we don't need to validate that it exists
     #[account(mut)]
     pub metadata: UncheckedAccount<'info>,
-    /// CHECK: We're about to create this with Metaplex inside transaction
-    #[account(mut)]
-    pub master_edition_metadata: UncheckedAccount<'info>,
 
     #[account(mut)]
     pub mint: Signer<'info>,

@@ -29,7 +29,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
       mint: mintKeypair.publicKey,
       owner: wallet.publicKey,
     });
-    console.log(`New token: ${mintKeypair.publicKey}`);
+    console.log(`New token (mint): ${mintKeypair.publicKey}`);
     // 2. Derive the metadata account and master edition metadata account addresses
     // NOTE I believe we're using PDAs for these accounts. Specifically,
     // we're using findProgramAddress and passing it some seeds.
@@ -108,6 +108,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
     // -- One about metadata not being added correctly or at all
     // -- Two was the familiar ix error: instruction modified the
     // program ID of an account. In the past, this was space/size related...
+    // NOTE You DO NOT pass the Context as an arg! Anchor does this automatically!
     await program.methods
       .mintNft(testNftTitle, testNftSymbol, testNftUri)
       // NOTE We only provide the PublicKeys for all the accounts.
@@ -115,9 +116,12 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
       // since we already declared that in the program MintNft Context struct.
       // This means Anchor will look for all that info in our MintNft struct
       // ON ENTRY!
+      // NOTE We also don't have to pass the System Program, Token Program, and
+      // Associated Token Program, since Anchor resolves these automatically. We
+      // only have to pass in Token Metadata Program since it's 'UncheckedAccount'
       .accounts({
-        metadata: metadataAccountAddress,
         masterEditionMetadata: masterEditionMetadataAccountAddress,
+        metadata: metadataAccountAddress,
         mint: mintKeypair.publicKey,
         tokenAccount: tokenAddress,
         mintAuthority: wallet.publicKey,
