@@ -2,12 +2,13 @@ import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 // import { SolanaAnchorMetaplexMintSellNfts } from "../target/types/solana_anchor_metaplex_mint_nfts";
 import { SolanaAnchorMetaplexMintSellNfts } from "../target/types/solana_anchor_metaplex_mint_sell_nfts";
+import { createKeypairFromFile } from "./utils";
 
-describe("solana-anchor-metaplex-mint-nfts", () => {
+describe("solana-anchor-metaplex-mint-sell-nfts", () => {
   const testNftTitle = "YouTube NFT";
   const testNftSymbol = "TUBE";
   const testNftUri =
-    "https://raw.githubusercontent.com/gaylonalfano/solana-anchor-metaplex-mint-nfts/main/assets/example.json";
+    "https://raw.githubusercontent.com/gaylonalfano/solana-anchor-metaplex-mint-sell-nfts/main/assets/example.json";
 
   const provider = anchor.AnchorProvider.env();
   // NOTE We use anchor.Wallet to help with typing
@@ -19,7 +20,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
   //   .SolanaAnchorMetaplexMintNfts as Program<SolanaAnchorMetaplexMintSellNfts>;
 
   // NEW PROGRAM NAME:
-  // NOTE Had to update this name EVERYWHERE!
+  // NOTE Had to update this name EVERYWHERE! TL;DR Just init a fresh project and copy files!
   const program = anchor.workspace
     .SolanaAnchorMetaplexMintSellNfts as Program<SolanaAnchorMetaplexMintSellNfts>;
 
@@ -32,7 +33,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
     // NOTE We just derive the account addresses on the Client-side, and then
     // let our program take care of creating the actual accounts
     const mintKeypair: anchor.web3.Keypair = anchor.web3.Keypair.generate();
-    const tokenAddress = await anchor.utils.token.associatedAddress({
+    const tokenAccountAddress = await anchor.utils.token.associatedAddress({
       mint: mintKeypair.publicKey,
       owner: wallet.publicKey,
     });
@@ -132,7 +133,7 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
         masterEditionMetadata: masterEditionMetadataAccountAddress,
         metadata: metadataAccountAddress,
         mint: mintKeypair.publicKey,
-        tokenAccount: tokenAddress,
+        tokenAccount: tokenAccountAddress,
         mintAuthority: wallet.publicKey,
         tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
         // Q: What about the others (tokenProgram, associatedTokenProgram, rent, etc.)?
@@ -147,5 +148,19 @@ describe("solana-anchor-metaplex-mint-nfts", () => {
       // but you don't pass wallet as signer for Anchor. It already knows.
       .signers([mintKeypair])
       .rpc({ skipPreflight: true }); // Get better logs
+  });
+
+  it("Sell!", async () => {
+    let buyer1Keypair = await createKeypairFromFile("./keypairs/buyer1.json");
+    // let seller1Keypair = await createKeypairFromFile("./keypairs/seller1.json");
+    const saleAmount = 1 * anchor.web3.LAMPORTS_PER_SOL;
+    // NOTE I don't have to mint a new NFT! I can simply open explorer and find its address!
+    // This means our Wallet is the current owner (seller)!
+    const mint: anchor.web3.PublicKey = new anchor.web3.PublicKey(
+      "CpNaRA41un7CqEsSSE5VzKyGviCtiSa9b9vfKGb8xATe"
+    );
+
+    // Need to then sell NFT to second account
+    // await program.methods.sellNft()
   });
 });
