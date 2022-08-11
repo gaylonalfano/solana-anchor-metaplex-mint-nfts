@@ -1,12 +1,3 @@
-
-// pub fn sell(ctx: Context<SellNft>, sale_lamports: u64) -> Result<()> {
-//     sell::sell_nft(
-//         ctx,
-//         sale_lamports,
-//     )
-// }
-
-
 use anchor_lang::{prelude::*, system_program};
 use anchor_spl::{associated_token, token};
 
@@ -97,7 +88,7 @@ pub fn sell_nft(ctx: Context<SellNft>, sale_lamports: u64) -> Result<()> {
             token::Transfer { 
                 from: ctx.accounts.seller_token_account.to_account_info(), 
                 to: ctx.accounts.buyer_token_account.to_account_info(), 
-                authority: ctx.accounts.buyer_authority.to_account_info()
+                authority: ctx.accounts.seller_authority.to_account_info()
             }
         ),
         1 // Transfer 1 NFT Token

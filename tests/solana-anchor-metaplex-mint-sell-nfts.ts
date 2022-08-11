@@ -120,7 +120,7 @@ describe("solana-anchor-metaplex-mint-sell-nfts", () => {
     // program ID of an account. In the past, this was space/size related...
     // NOTE You DO NOT pass the Context as an arg! Anchor does this automatically!
     await program.methods
-      .mintNft(testNftTitle, testNftSymbol, testNftUri)
+      .mint(testNftTitle, testNftSymbol, testNftUri)
       // NOTE We only provide the PublicKeys for all the accounts.
       // We do NOT have to deal with isSigner, isWritable, etc. like in RAW
       // since we already declared that in the program MintNft Context struct.
@@ -151,8 +151,12 @@ describe("solana-anchor-metaplex-mint-sell-nfts", () => {
   });
 
   it("Sell!", async () => {
-    let buyer1Keypair = await createKeypairFromFile("./keypairs/buyer1.json");
-    // let seller1Keypair = await createKeypairFromFile("./keypairs/seller1.json");
+    console.log("1. Set up mint, buyer, and seller (wallet) accounts...");
+    const buyer: anchor.web3.Keypair = await createKeypairFromFile(
+      __dirname + "/keypairs/buyer1.json"
+    );
+    console.log(`Buyer's public key: ${buyer.publicKey}`);
+    console.log(`Seller's public key: ${wallet.publicKey}`);
     const saleAmount = 1 * anchor.web3.LAMPORTS_PER_SOL;
     // NOTE I don't have to mint a new NFT! I can simply open explorer and find its address!
     // This means our Wallet is the current owner (seller)!
@@ -160,7 +164,65 @@ describe("solana-anchor-metaplex-mint-sell-nfts", () => {
       "CpNaRA41un7CqEsSSE5VzKyGviCtiSa9b9vfKGb8xATe"
     );
 
+    console.log("2. Derive ATAs for both buyer and seller...");
+    const sellerTokenAccount = await anchor.utils.token.associatedAddress({
+      mint: mint,
+      owner: wallet.publicKey,
+    });
+
+    // NOTE The buyer likely doesn't have an ATA for this mint, so we first
+    // get a compatable ATA address that the Associated Token Program can use.
+    const buyerTokenAccount = await anchor.utils.token.associatedAddress({
+      mint: mint,
+      owner: buyer.publicKey,
+    });
+    console.log(`Request to sell NFT: ${mint} for ${saleAmount} lamports.`);
+    console.log(`Seller's (owner) Token Address: ${sellerTokenAccount}`);
+    console.log(`Buyer's Token Address: ${buyerTokenAccount}`);
+
     // Need to then sell NFT to second account
-    // await program.methods.sellNft()
+    // === Accounts Reference ===
+    //     #[account(mut)]
+    // pub mint: Account<'info, token::Mint>,
+    // // Q: Why is type TokenAccount instead of AssociatedToken?
+    // // A: associated_token::AssociatedToken points to the PROGRAM! Not an ATA type!
+    // #[account(mut)]
+    // pub seller_token_account: Account<'info, token::TokenAccount>,
+
+    // #[account(mut)]
+    // pub seller_authority: Signer<'info>,
+
+    // /// CHECK: We're about to create this with Anchor inside transaction
+    // #[account(mut)]
+    // pub buyer_token_account: UncheckedAccount<'info>,
+
+    // #[account(mut)]
+    // pub buyer_authority: Signer<'info>,
+
+    // pub rent: Sysvar<'info, Rent>,
+    // pub system_program: Program<'info, System>,
+    // pub token_program: Program<'info, token::Token>,
+    // pub associated_token_program: Program<'info, associated_token::AssociatedToken>,
+
+    console.log(
+      "3. Transact with the 'sell' function in our on-chain program..."
+    );
+    await program.methods
+      .sell(
+        // Q: Why can't I pass 'number'?
+        // A: For serialization purposes, you MUST use Anchor's BN()
+        new anchor.BN(saleAmount)
+      )
+      .accounts({
+        mint: mint,
+        sellerTokenAccount: sellerTokenAccount,
+        sellerAuthority: wallet.publicKey,
+        // Q: How/where to create the buyer's ATA? Use the same anchor.utils.token.associatedAddress()?
+        // A: Yes!
+        buyerTokenAccount: buyerTokenAccount,
+        buyerAuthority: buyer.publicKey,
+      })
+      .signers([buyer])
+      .rpc({ skipPreflight: true });
   });
 });

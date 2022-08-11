@@ -14,6 +14,7 @@ declare_id!("D1bjHUXjN8KQfuUC1TtC3CCXCdhS4XYceCYjndF77U2G");
 pub mod solana_anchor_metaplex_mint_sell_nfts {
     use super::*;
 
+    // NOTE The fn name corresponds to IDL's program.methods.[fn]
     pub fn mint(ctx: Context<MintNft>, metadata_name: String, metadata_symbol: String, metadata_uri: String) -> Result<()> {
         mint::mint_nft(
             ctx,
