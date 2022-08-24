@@ -15,6 +15,7 @@ pub mod solana_anchor_metaplex_mint_sell_nfts {
     use super::*;
 
     // NOTE The fn name corresponds to IDL's program.methods.[fn]
+    // NOTE All other args are Instruction Data! Anchor simplifies it for us!
     pub fn mint(ctx: Context<MintNft>, metadata_name: String, metadata_symbol: String, metadata_uri: String) -> Result<()> {
         mint::mint_nft(
             ctx,
