@@ -71,7 +71,7 @@ pub fn mint_nft(ctx: Context<MintNft>, metadata_name: String, metadata_symbol: S
                 rent: ctx.accounts.rent.to_account_info(),
             },
         ), 
-        0, // Decimals
+        0, // Decimals - Set to 0 for NFTs
         &ctx.accounts.mint_authority.key(), // authority
         Some(&ctx.accounts.mint_authority.key()) // freeze authority
     )?;
@@ -228,7 +228,7 @@ pub fn mint_nft(ctx: Context<MintNft>, metadata_name: String, metadata_symbol: S
 
 #[derive(Accounts)]
 pub struct MintNft<'info> {
-// NOTE Anchor uses a Struct to handle all the accounts needed for tx
+// NOTE Anchor uses a Struct to handle all the accounts needed for tx:
 // let mint = next_account_info(accounts_iter)?; // Create a new mint (token)
 // let token_account = next_account_info(accounts_iter)?; // Create a token account for the mint
 // let mint_authority = next_account_info(accounts_iter)?; // Our wallet
